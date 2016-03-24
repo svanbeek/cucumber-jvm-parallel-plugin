@@ -1,5 +1,12 @@
 package com.github.timm.cucumber.generate;
 
+import com.github.timm.cucumber.options.TagParser;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,14 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-
-import com.github.timm.cucumber.options.TagParser;
-
 public class CucumberITGenerator {
 
     private final FileGeneratorConfig config;
@@ -23,6 +22,8 @@ public class CucumberITGenerator {
     int fileCounter = 1;
     private String featureFileLocation;
     private Template velocityTemplate;
+    private String originalFileName;
+    private String scenario;
 
     public CucumberITGenerator(final FileGeneratorConfig config, final OverriddenCucumberOptionsParameters overriddenParameters) {
         this.config = config;
@@ -54,8 +55,10 @@ public class CucumberITGenerator {
                 continue;
             }
 
-            final String outputFileName = String.format("Parallel%02dIT.java",
-                    fileCounter);
+            originalFileName = file.getName();
+            scenario = String.format("%02d", fileCounter);
+
+            final String outputFileName = String.format("Parallel%02dIT.java", fileCounter);
 
             setFeatureFileLocation(file);
 
@@ -164,6 +167,9 @@ public class CucumberITGenerator {
         context.put("monochrome", overriddenParameters.isMonochrome());
         context.put("cucumberOutputDir", config.getCucumberOutputDir());
         context.put("glue", quoteGlueStrings());
+        context.put("extendsClass", config.extendsClass());
+        context.put("scenario", scenario);
+        context.put("fileName", originalFileName);
 
         velocityTemplate.merge(context, writer);
     }

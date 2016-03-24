@@ -1,8 +1,8 @@
 package com.github.timm.cucumber.generate;
 
-import java.io.File;
-
 import org.apache.maven.plugin.logging.Log;
+
+import java.io.File;
 
 public interface FileGeneratorConfig {
 
@@ -18,4 +18,5 @@ public interface FileGeneratorConfig {
 
     boolean useTestNG();
 
+    String extendsClass();
 }
